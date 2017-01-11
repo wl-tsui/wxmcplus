@@ -85,7 +85,8 @@ Page({
           _data.iconPath = "./images/" + res.data.main.pois[k].race + ".png"
           _data.latitude = res.data.main.pois[k].latitude
           _data.longitude = res.data.main.pois[k].longitude
-          _data.id = res.data.main.pois[k].name
+          // _data.id = res.data.main.pois[k].name
+          _data.id = k
           _data.width = 40
           _data.height = 51
           ar.push(_data)
