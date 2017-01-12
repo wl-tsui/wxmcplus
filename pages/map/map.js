@@ -5,40 +5,15 @@
 
 var util = require('../../utils/util.js')
 var pois = [];
+var scrW = 0;
+var scrH = 0;
 var app = getApp()
 Page({
   data: {
     markers: [],
     poi: {},
     lat: '',
-    lng: '',
-    controls: [{
-      id: 2,
-      iconPath: './images/gis.png',
-      position: {
-        left: 5,
-        top: 600 - 30,
-      },
-      clickable: true
-    },
-    {
-      id: 1,
-      iconPath: './images/center.png',
-      position: {
-        left: 200,
-        top: 300 - 30,
-      },
-      clickable: false
-    },
-    {
-      id: 3,
-      iconPath: './images/search.png',
-      position: {
-        left: 330,
-        top: 600 - 30,
-      },
-      clickable: true
-    }]
+    lng: ''
   },
   regionchange(e) {
     //地图视野发生变化的时候，获取中心的坐标
@@ -61,7 +36,7 @@ Page({
   markertap(e) {
     var that = this;
     that.setData({
-      poi:{
+      poi: {
         name: that.pois[e.markerId].name,
         level: that.pois[e.markerId].level
       }
@@ -105,6 +80,48 @@ Page({
   },
   onLoad: function () {
     const that = this;
+    wx.getSystemInfo({
+      success: function (res) {
+        console.log(res.model)
+        console.log(res.pixelRatio)
+        console.log(res.windowWidth)
+        console.log(res.windowHeight)
+        console.log(res.language)
+        console.log(res.version)
+        console.log(res.platform)
+        that.scrW = res.windowWidth
+        that.scrH = res.windowHeight
+      }
+    })
+    that.setData({
+      controls: [{
+        id: 2,
+        iconPath: './images/gis.png',
+        position: {
+          left: 5,
+          top: that.scrH - 65,
+        },
+        clickable: true
+      },
+      {
+        id: 1,
+        iconPath: './images/center.png',
+        position: {
+          left: that.scrW/2-20,
+          top: that.scrH/2-45,
+        },
+        clickable: false
+      },
+      {
+        id: 3,
+        iconPath: './images/search.png',
+        position: {
+          left: that.scrW - 65,
+          top: that.scrH - 65,
+        },
+        clickable: true
+      }]
+    })
     wx.getLocation({
       type: 'wgs84', // 默认为 wgs84 返回 gps 坐标，gcj02 返回可用于 wx.openLocation 的坐标
       success: function (res) {
@@ -123,25 +140,25 @@ Page({
     var displayType = "pois"; //other
     wx.request({
       url: "http://hbtest.dworld.cn/Map/getMapInfo",
-      data: '{ "lat": ' + lat + ', "lon": ' + lon + ', "type": "osm", "gType": "'+displayType+'" }',
+      data: '{ "lat": ' + lat + ', "lon": ' + lon + ', "type": "osm", "gType": "' + displayType + '" }',
       header: { 'content-type': 'application/x-www-form-urlencoded' },
       method: 'POST',
       success: res => {
-        if( displayType == "other" ){
+        if (displayType == "other") {
           that.pois = res.data.main.allthings;
-        }else{
+        } else {
           that.pois = res.data.main.pois;
         }
         // console.log(that.pois)
         var ar = new Array();
         for (var k in that.pois) {
           var _data = new Object();
-           if( displayType == "other" ){
-            if( that.pois[k].type == 1 )
+          if (displayType == "other") {
+            if (that.pois[k].type == 1)
               _data.iconPath = "./images/money.png"
             else
               _data.iconPath = "./images/hero.png"
-          }else{
+          } else {
             _data.iconPath = "./images/" + that.pois[k].race + ".png"
             _data.title = that.pois[k].name
           }

@@ -1,6 +1,17 @@
-<view class="mcMap_container">
-<map id="mcMap" class="mcMap" latitude="{{lat}}" longitude="{{lng}}" scale="15" controls="{{controls}}" bindcontroltap="controltap" bindtap= "bindViewTap" bindregionchange="regionchange" markers="{{markers}}" bindmarkertap="markertap" show-location style="width: 750rpx; height: 1260rpx"></map>
-</view>
+<map 
+    id="mcMap" 
+    class="mcMap" 
+    latitude="{{lat}}" 
+    longitude="{{lng}}" 
+    scale="15" 
+    controls="{{controls}}" 
+    bindcontroltap="controltap" 
+    bindtap= "bindViewTap" 
+    bindregionchange="regionchange" 
+    markers="{{markers}}" 
+    bindmarkertap="markertap" 
+    show-location="{{true}}">
+</map>
 <view class="poi_info">
   <text>{{poi.name}}</text>
   <text>{{poi.level}}</text>
