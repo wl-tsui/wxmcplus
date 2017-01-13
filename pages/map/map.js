@@ -2,9 +2,10 @@
 //add by wl-tsui, 2017.1.10
 //地图显示和操作
 
-
 var util = require('../../utils/util.js')
+var geo = require('../../utils/geoConverter.js')
 var pois = [];
+var tileMap = new Map();
 var scrW = 0;
 var scrH = 0;
 var app = getApp()
@@ -12,14 +13,15 @@ Page({
   data: {
     markers: [],
     poi: {},
-    lat: '',
-    lng: ''
+    lat: '39.97076538357345',
+    lng: '116.40680687535645'
   },
   regionchange(e) {
     //地图视野发生变化的时候，获取中心的坐标
     //begin => end 
-    if (e.type == "end") {
-      const that = this;
+    const that = this;
+    if (e.type === "begin") {
+    } else if (e.type == "end") {
       this.mapCtx.getCenterLocation({
         success: function (res) {
           console.log("****now center,  lat: ", res.latitude, ", lon: ", res.longitude)
@@ -57,7 +59,7 @@ Page({
       })
     } else if (e.controlId == 2) {
       wx.getLocation({
-        type: 'wgs84', // 默认为 wgs84 返回 gps 坐标，gcj02 返回可用于 wx.openLocation 的坐标
+        type: 'gcj02', // 默认为 wgs84 返回 gps 坐标，gcj02 返回可用于 wx.openLocation 的坐标
         success: function (res) {
           console.log("location,  lat: ", res.latitude, ", lon: ", res.longitude)
           that.setData({
@@ -70,6 +72,7 @@ Page({
     }
   },
   bindViewTap(e) {
+    const that = this;
   },
   onReady: function (e) {
     // 使用 wx.createMapContext 获取 map 上下文 
@@ -107,8 +110,8 @@ Page({
         id: 1,
         iconPath: './images/center.png',
         position: {
-          left: that.scrW/2-20,
-          top: that.scrH/2-45,
+          left: that.scrW / 2 - 20,
+          top: that.scrH / 2 - 45,
         },
         clickable: false
       },
@@ -116,7 +119,7 @@ Page({
         id: 3,
         iconPath: './images/search.png',
         position: {
-          left: that.scrW - 65,
+          left: that.scrW - 60,
           top: that.scrH - 65,
         },
         clickable: true
@@ -137,38 +140,48 @@ Page({
 
   getPois(lat, lon) {
     const that = this;
-    var displayType = "pois"; //other
+    var displayType = "all"; //other
     wx.request({
+      // url: "http://hbtest.dworld.cn/hujianrui/Map/getMapInfo",
       url: "http://hbtest.dworld.cn/Map/getMapInfo",
       data: '{ "lat": ' + lat + ', "lon": ' + lon + ', "type": "osm", "gType": "' + displayType + '" }',
       header: { 'content-type': 'application/x-www-form-urlencoded' },
       method: 'POST',
       success: res => {
-        if (displayType == "other") {
-          that.pois = res.data.main.allthings;
-        } else {
-          that.pois = res.data.main.pois;
-        }
-        // console.log(that.pois)
+        console.log(res.data)
         var ar = new Array();
-        for (var k in that.pois) {
-          var _data = new Object();
-          if (displayType == "other") {
-            if (that.pois[k].type == 1)
-              _data.iconPath = "./images/money.png"
-            else
-              _data.iconPath = "./images/hero.png"
-          } else {
-            _data.iconPath = "./images/" + that.pois[k].race + ".png"
-            _data.title = that.pois[k].name
+        var _tt = new Array();
+        for (var kk in res.data.main) {
+          for (var k in res.data.main[kk]) {
+            // console.log(res.data.main[kk][k])
+            var _data = new Object();
+            if (kk == "pois") {
+              _data.iconPath = "./images/" + res.data.main[kk][k].race + ".png"
+              _data.title = res.data.main[kk][k].name
+            } else {
+              if (res.data.main[kk][k].type == 1) {
+                _data.iconPath = "./images/money.png"
+              }
+              else {
+                _data.iconPath = "./images/hero.png"
+              }
+            }
+            _data.latitude = res.data.main[kk][k].latitude
+            _data.longitude = res.data.main[kk][k].longitude
+
+            var _tile = geo.LatLonToTile(_data.latitude, _data.longitude);
+            var _key = _tile.x+"_"+_tile.y;
+            tileMap.set(_key,"ture");
+
+            _data.id = res.data.main[kk][k].id
+
+            // _data.width = 40
+            // _data.height = 51
+            ar.push(_data)
           }
-          _data.latitude = that.pois[k].latitude
-          _data.longitude = that.pois[k].longitude
-          _data.id = k
-          // _data.width = 40
-          // _data.height = 51
-          ar.push(_data)
+          // that.pois = that.pois.concat(res.data.main[kk]);
         }
+        console.log(tileMap)
         that.setData({
           markers: ar
         })
