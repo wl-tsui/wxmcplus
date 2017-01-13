@@ -4,6 +4,8 @@
 
 var util = require('../../utils/util.js')
 var geo = require('../../utils/geoConverter.js')
+
+var isLoading= false;
 var pois = [];
 var tileMap = new Map();
 var scrW = 0;
@@ -139,7 +141,15 @@ Page({
   },
 
   getPois(lat, lon) {
+    if( isLoading ) return;
     const that = this;
+    var _t = geo.LatLonToTile(lat, lon);
+    var _k = _t.x+"_"+_t.y;
+    if( tileMap.has(_k) ){
+      return;
+    }
+    tileMap.clear();
+    isLoading = true;
     var displayType = "all"; //other
     wx.request({
       // url: "http://hbtest.dworld.cn/hujianrui/Map/getMapInfo",
@@ -186,8 +196,10 @@ Page({
           markers: ar
         })
       },
-      fail: () => console.error('something is wrong'),
-      complete: () => console.log('json data is loaded')
+      fail: () => console.error('################something is wrong'),
+      complete: () => {
+          isLoading = false;
+      }
     })
   }
 })
