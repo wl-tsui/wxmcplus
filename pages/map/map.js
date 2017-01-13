@@ -5,7 +5,7 @@
 var util = require('../../utils/util.js')
 var geo = require('../../utils/geoConverter.js')
 
-var isLoading= false;
+var isLoading = false;
 var pois = [];
 var tileMap = new Map();
 var scrW = 0;
@@ -141,11 +141,11 @@ Page({
   },
 
   getPois(lat, lon) {
-    if( isLoading ) return;
+    if (isLoading) return;
     const that = this;
     var _t = geo.LatLonToTile(lat, lon);
-    var _k = _t.x+"_"+_t.y;
-    if( tileMap.has(_k) ){
+    var _k = _t.x + "_" + _t.y;
+    if (tileMap.has(_k)) {
       return;
     }
     tileMap.clear();
@@ -166,7 +166,12 @@ Page({
             // console.log(res.data.main[kk][k])
             var _data = new Object();
             if (kk == "pois") {
-              _data.iconPath = "./images/" + res.data.main[kk][k].race + ".png"
+              var name = parseInt(res.data.main[kk][k].name)
+              if (Number.isNaN(name)) {
+                _data.iconPath = "./images/" + res.data.main[kk][k].race + ".png"
+              } else {
+                _data.iconPath = "./images/number.png"
+              }
               _data.title = res.data.main[kk][k].name
             } else {
               if (res.data.main[kk][k].type == 1) {
@@ -180,8 +185,8 @@ Page({
             _data.longitude = res.data.main[kk][k].longitude
 
             var _tile = geo.LatLonToTile(_data.latitude, _data.longitude);
-            var _key = _tile.x+"_"+_tile.y;
-            tileMap.set(_key,"ture");
+            var _key = _tile.x + "_" + _tile.y;
+            tileMap.set(_key, "ture");
 
             _data.id = res.data.main[kk][k].id
 
@@ -191,14 +196,14 @@ Page({
           }
           // that.pois = that.pois.concat(res.data.main[kk]);
         }
-        console.log(tileMap)
+        // console.log(tileMap)
         that.setData({
           markers: ar
         })
       },
       fail: () => console.error('################something is wrong'),
       complete: () => {
-          isLoading = false;
+        isLoading = false;
       }
     })
   }
