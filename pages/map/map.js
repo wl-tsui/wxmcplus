@@ -11,6 +11,9 @@ var tileMap = new Map();
 var scrW = 0;
 var scrH = 0;
 var app = getApp()
+
+import wux from 'components/wux'
+
 Page({
   data: {
     markers: [],
@@ -205,6 +208,17 @@ Page({
       complete: () => {
         isLoading = false;
       }
+    })
+  },
+  wux: (scope) => new wux(scope),
+  showInfo() {
+    const _this = this;
+    _this.$wuxToast.show({
+      type: 'text',
+      timer: 1500,
+      color: '#fff',
+      text: '文本内容',
+      success: () => console.log('文本内容')
     })
   }
 })
