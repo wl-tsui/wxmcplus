@@ -1,8 +1,8 @@
 .mccontainer{
     width: 100%;
-    height: 1333rpx; 
+    height: 100vh; 
 }
 .mcMap {
     width: 100%;
-    height: 1333rpx;
+    height: 100%;
 }

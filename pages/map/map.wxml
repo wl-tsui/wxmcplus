@@ -12,6 +12,7 @@
     markers="{{markers}}" 
     bindmarkertap="markertap" 
     show-location="{{true}}"
+    wx:if="{{ifShowMap}}"
    >
 </map>
 </view>

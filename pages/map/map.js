@@ -9,13 +9,15 @@ var isLoading = false;
 var pois = [];
 var scrW = 0;
 var scrH = 0;
+var hdScr = '';
 var app = getApp()
 
 // import wux from 'components/wux'
 Page({
   data: {
-    width:0,
-    height:0,
+    ifShowMap: false,
+    width: 0,
+    height: 0,
     markers: [],
     poi: {},
     lat: '',
@@ -49,26 +51,24 @@ Page({
   },
   onLoad: function () {
     const that = this;
-    wx.getSystemInfo({
-      success: function (res) {
-        // console.log(res.model)
-        // console.log(res.pixelRatio)
-        // console.log(res.windowWidth)
-        // console.log(res.windowHeight)
-        // console.log(res.language)
-        // console.log(res.version)
-        // console.log(res.platform)
-        that.scrW = res.windowWidth
-        that.scrH = res.windowHeight
+    that.hdScr = '';
+    try {
+      var res = wx.getSystemInfoSync()
+      if( res.platform == 'android'  && res.pixelRatio >=2 ){
+          that.hdScr = 'hd/'
       }
-    })
+      that.scrW = res.windowWidth
+      that.scrH = res.windowHeight
+    } catch (e) {
+    }
     that.setData({
+      ifShowMap: true,
       // width:that.scrW,
       // height:that.scrH,
       controls: [
         {
           id: 1,
-          iconPath: './images/center.png',
+          iconPath: './images/' + that.hdScr + 'center.png',
           position: {
             left: that.scrW / 2 - 20,
             top: that.scrH / 2 - 45,
@@ -77,7 +77,7 @@ Page({
         },
         {
           id: 2,
-          iconPath: './images/gis.png',
+          iconPath: './images/' + that.hdScr + 'gis.png',
           position: {
             left: 5,
             top: that.scrH - 65,
@@ -86,7 +86,7 @@ Page({
         },
         {
           id: 3,
-          iconPath: './images/search.png',
+          iconPath: './images/' + that.hdScr + 'search.png',
           position: {
             left: that.scrW - 60,
             top: that.scrH - 65,
@@ -107,13 +107,13 @@ Page({
       }
     })
   },
- markertap(e) {
+  markertap(e) {
     var that = this;
-    // wx.showToast({
-    //   title: that.pois[e.markerId].title,
-    //   icon: 'success',
-    //   duration: 1000
-    // })
+    wx.showToast({
+      title: that.pois[e.markerId].title,
+      icon: 'success',
+      duration: 1000
+    })
   },
   controltap(e) {
     const that = this;
@@ -166,7 +166,7 @@ Page({
     if (isLoading) return;
     const that = this;
     var _t = geo.LatLonToTile(lat, lon);
-    var _k = "tile_"+_t.x + "_" + _t.y;
+    var _k = "tile_" + _t.x + "_" + _t.y;
     try {
       var value = wx.getStorageSync(_k)
       if (value) {
@@ -200,25 +200,25 @@ Page({
             if (kk == "pois") {
               var name = parseInt(res.data.main[kk][k].name)
               if (Number.isNaN(name)) {
-                _data.iconPath = "./images/" + res.data.main[kk][k].race + ".png"
+                _data.iconPath = './images/' + that.hdScr + res.data.main[kk][k].race + ".png"
               } else {
-                _data.iconPath = "./images/number.png"
+                _data.iconPath = './images/' + that.hdScr + 'number.png'
               }
               _data.title = res.data.main[kk][k].name
             } else {
               _data.title = "红包出没"
               if (res.data.main[kk][k].type == 1) {
-                _data.iconPath = "./images/money.png"
+                _data.iconPath = './images/' + that.hdScr + 'money.png'
               }
               else {
-                _data.iconPath = "./images/hero.png"
+                _data.iconPath = './images/' + that.hdScr + 'hero.png'
               }
             }
             _data.latitude = res.data.main[kk][k].latitude
             _data.longitude = res.data.main[kk][k].longitude
 
             var _tile = geo.LatLonToTile(_data.latitude, _data.longitude);
-            var _key = "tile_"+_tile.x + "_" + _tile.y;
+            var _key = "tile_" + _tile.x + "_" + _tile.y;
             try {
               wx.setStorageSync(_key, "true")
             } catch (e) {
